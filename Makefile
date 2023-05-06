@@ -14,7 +14,6 @@ PLATFORM := windows32
 endif
 
 ifeq ($(PLATFORM),windows32)
-_ := $(shell chcp 65001)
 EXESUFFIX:=.exe
 NATIVE_CC = clang -IWindows -Wno-deprecated-declarations --target=i386-pc-windows
 SDL_AUDIO_DRIVERS ?= xaudio2 xaudio2_7 sdl
@@ -31,14 +30,6 @@ DEFAULT := cocoa
 ENABLE_OPENAL ?= 1
 else
 DEFAULT := sdl
-endif
-
-ifneq ($(shell which xdg-open)$(FREEDESKTOP),)
-# Running on an FreeDesktop environment, configure for (optional) installation
-DESTDIR ?= 
-PREFIX ?= /usr/local
-DATA_DIR ?= $(PREFIX)/share/sameboy/
-FREEDESKTOP ?= true
 endif
 
 default: $(DEFAULT)
@@ -66,14 +57,6 @@ endif
 ifeq ($(origin CC),default)
 ifneq (, $(shell which clang))
 CC := clang 
-endif
-endif
-
-# Find libraries with pkg-config if available.
-ifneq (, $(shell which pkg-config))
-# But not on macOS, it's annoying
-ifneq ($(PLATFORM),Darwin)
-PKG_CONFIG := pkg-config
 endif
 endif
 
@@ -133,8 +116,8 @@ CFLAGS += -DUPDATE_SUPPORT
 endif
 
 ifeq (,$(PKG_CONFIG))
-SDL_CFLAGS := $(shell sdl2-config --cflags)
-SDL_LDFLAGS := $(shell sdl2-config --libs) -lpthread
+SDL_CFLAGS := $(shell sdl2-config --cflags 2> $(NULL))
+SDL_LDFLAGS := $(shell sdl2-config --libs 2> $(NULL)) -lpthread
 
 # We cannot detect the presence of OpenAL dev headers,
 # so we must do this manually
