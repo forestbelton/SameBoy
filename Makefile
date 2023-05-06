@@ -460,7 +460,11 @@ $(OBJ)/%.res: %.rc
 	-@$(MKDIR) -p $(dir $@)
 	# NB (forestbelton): Hit RC1107 on the default command, not sure why, hardcoded interpolations
 	# 					 for now 
-	rc /fo $(subst /,\,$@) $(subst /,\,$^)
+	# NB (forestbelton): This still causes an RC1107. There's some kind of problem with how `rc' is
+	#                    being invoked that is causing an incompatibility; running the "identical"
+	#                    command from `cmd.exe' works for now.
+	#rc /fo $(subst /,\,$@) $(subst /,\,$^)
+	touch $@
 
 %.o: %.res
 	cvtres /OUT:"$@" $^
