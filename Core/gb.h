@@ -15,6 +15,7 @@
 #include "debugger.h"
 #include "display.h"
 #include "joypad.h"
+#include "hooks.h"
 #include "mbc.h"
 #include "memory.h"
 #include "printer.h"
@@ -283,6 +284,7 @@ typedef void (*GB_lcd_status_callback_t)(GB_gameboy_t *gb, bool on);
 
 struct GB_breakpoint_s;
 struct GB_watchpoint_s;
+struct GB_hook_s;
 
 typedef struct {
     uint8_t pixel; // Color, 0-3
@@ -817,7 +819,11 @@ struct GB_gameboy_internal_s {
         bool hdma_in_progress;
         bool returned_open_bus;
         uint16_t addr_for_hdma_conflict;
-               
+
+        /* Game hooks */
+        uint16_t n_hooks;
+        struct GB_hook_s *hooks;
+
         /* Thread safety (debug only) */
         void *running_thread_id;
                
