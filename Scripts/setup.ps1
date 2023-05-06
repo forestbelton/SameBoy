@@ -4,6 +4,7 @@ $DOWNLOAD_DIR = "$BASE_DIR\cache"
 $DEPENDENCIES = @{
     SAMEBOY = @{
         URL = "https://github.com/forestbelton/SameBoy/archive/refs/heads/decompile.zip";
+        Expand = $true;
     };
     SDL2 = @{
         URL = "https://github.com/libsdl-org/SDL/releases/download/release-2.26.5/SDL2-devel-2.26.5-VC.zip";
