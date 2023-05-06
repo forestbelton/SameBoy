@@ -458,7 +458,9 @@ $(OBJ)/%.o: %.rc
 else
 $(OBJ)/%.res: %.rc
 	-@$(MKDIR) -p $(dir $@)
-	rc /fo $@ /dVERSION=\"$(VERSION)\" /dCOPYRIGHT_YEAR=\"$(COPYRIGHT_YEAR)\" $^ 
+	# NB (forestbelton): Hit RC1107 on the default command, not sure why, hardcoded interpolations
+	# 					 for now 
+	rc /fo $(subst /,\,$@) $(subst /,\,$^)
 
 %.o: %.res
 	cvtres /OUT:"$@" $^
@@ -466,8 +468,10 @@ endif
 
 # We must provide SDL2.dll with the Windows port.
 $(BIN)/SDL/SDL2.dll:
-	@$(eval MATCH := $(shell where $$LIB:SDL2.dll))
-	cp "$(MATCH)" $@
+	# NB (forestbelton): This didn't seem to work, so I have hardcoded the path for now. May have
+	# 					 something to do with the environment I executed make from (GnuWin32
+	# 					 wouldn't download, so I just added C:\msys64\usr\bin to my PATH :)
+	cp "C:\\decompile\\SDL2\\lib\\x86\\SDL2.dll" $@
 
 # Tester
 
