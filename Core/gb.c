@@ -187,6 +187,7 @@ GB_gameboy_t *GB_init(GB_gameboy_t *gb, GB_model_t model)
     
     GB_reset(gb);
     load_default_border(gb);
+    GB_hooks_init(gb);
     return gb;
 }
 
@@ -1176,6 +1177,11 @@ unsigned GB_run(GB_gameboy_t *gb)
         GB_clear_running_thread(gb);
         gb->cycles_since_last_sync += 228;
         return 228;
+    }
+
+    unsigned cycles = GB_hooks_run(gb);
+    if (cycles > 0) {
+        return cycles;
     }
     
     GB_debugger_run(gb);
