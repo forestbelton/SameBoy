@@ -6,10 +6,12 @@
 // TODO: Expand to multiple platforms with dlopen and such
 #define HOOKS_MODULE_NAME "gb_hooks.dll"
 
+typedef unsigned (*GB_hook_fn_t)(GB_gameboy_t *gb);
+
 struct GB_hook_s {
     uint16_t addr;
     uint16_t bank; /* -1 = any bank*/
-    unsigned (*fn)(GB_gameboy_t *);
+    GB_hook_fn_t fn;
 };
 
 struct GB_hooklist_s {

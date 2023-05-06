@@ -21,8 +21,11 @@ set include=%include%;C:\decompile\SDL2\include
 set path=%path%;C:\decompile\rgbds;C:\msys64\usr\bin
 make
 pause
+goto :real_end
 
 :end
 set lib=%oldlib%
 set include=%oldinclude%
 set path=%oldpath%
+
+:real_end

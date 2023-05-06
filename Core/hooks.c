@@ -29,7 +29,7 @@ int GB_hook_should_apply(GB_gameboy_t *gb, struct GB_hook_s *hook) {
 }
 
 unsigned GB_hooks_run(GB_gameboy_t *gb) {
-    if (gb->hooks == NULL || gb->hooks->n_hooks == 0) {
+    if (!gb->boot_rom_finished || gb->hooks == NULL || gb->hooks->n_hooks == 0) {
         return 0;
     }
 
