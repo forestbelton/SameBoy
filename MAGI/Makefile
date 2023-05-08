@@ -2,7 +2,7 @@ DLL := ../build/bin/SDL/gb_hooks.dll
 
 .PHONY: clean
 
-CFILES := tffl.c
+CFILES := magi.c util.c
 OFILES := $(CFILES:%.c=%.o)
 
 CFLAGS := -std=gnu11 -I../Core -Wall -Wextra -Wno-unused-parameter -O2
