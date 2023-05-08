@@ -32,7 +32,6 @@ unsigned GB_hooks_run(GB_gameboy_t *gb) {
     if (!gb->boot_rom_finished || gb->hooks == NULL || gb->hooks->n_hooks == 0) {
         return 0;
     }
-
     // NB (forestbelton): We could do a binary search here like the
     //                    breakpoint code does, but I am lazy and
     //                    didn't want to mess around with unions and
@@ -44,9 +43,9 @@ unsigned GB_hooks_run(GB_gameboy_t *gb) {
             entry++;
             continue;
         }
+        GB_log(gb, "[HOOKS] Applying hook=%s;bank=$%02x;addr=%04x\n", entry->name, gb->mbc_rom_bank, gb->pc);
         return entry->fn(gb);
     }
-
     // No hooks ran!
     return 0;
 }

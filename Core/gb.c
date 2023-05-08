@@ -1178,12 +1178,6 @@ unsigned GB_run(GB_gameboy_t *gb)
         gb->cycles_since_last_sync += 228;
         return 228;
     }
-
-    unsigned cycles = GB_hooks_run(gb);
-    if (cycles > 0) {
-        return cycles;
-    }
-    
     GB_debugger_run(gb);
     gb->cycles_since_run = 0;
     GB_set_running_thread(gb);

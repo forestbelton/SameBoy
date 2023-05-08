@@ -1749,6 +1749,12 @@ void GB_cpu_run(GB_gameboy_t *gb)
     }
     /* Run mode */
     else if (!gb->halted) {
+        gb->pending_cycles = GB_hooks_run(gb);
+        if (gb->pending_cycles > 0) {
+            flush_pending_cycles(gb);
+            return;
+        }
+
         uint8_t opcode = cycle_read(gb, gb->pc++);
         if (unlikely(gb->hdma_on)) {
             GB_hdma_run(gb);
