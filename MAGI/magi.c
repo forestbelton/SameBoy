@@ -55,7 +55,6 @@ unsigned _mult8(GB_gameboy_t *gb) {
     // For simplicity, take mean number of cycles on uniform distribution of c
     const unsigned cycles = (4 + 12 + 8) + 7 * (8 + 8) + 8 * ((12 + 16) / 2);
     gb->hl = gb->b * gb->c;
-    gb->pc = 0x0513;
     return cycles;
 }
 
@@ -80,8 +79,6 @@ unsigned _vram_write_tile(GB_gameboy_t *gb) {
     gb_write16(gb, 0xc6e4, 0x29a4);
 
     const unsigned cycles = (12 + 8 + 8 + 4) * 2 + 16 * 2 + (8 + 8 + 8) * 16 + 4 + 16 + 4 + 16 + 12 + 8 + 8 + 8 + 8 + 16 + 8 + 16;
-    gb->pc = 0x29a3;
-
     return cycles;
 }
 
@@ -92,7 +89,6 @@ unsigned _memseq8(GB_gameboy_t *gb) {
         gb_write8(gb, gb->hl++, gb->a++);
         gb->b--;
     } while (gb->b > 0);
-    gb->pc = 0x02e5;
     return cycles;
 }
 
@@ -140,10 +136,10 @@ unsigned _gb_unsupported(GB_gameboy_t *gb) {
 
 struct GB_hook_s HOOKS[] = {
     // Utilities
-    { .addr = 0x04ca, .bank = 1, .fn = &_mult8, .name = "mult8" },
+    { .addr = 0x04ca, .bank = 1, .ret_addr = 0x0513, .fn = &_mult8, .name = "mult8" },
     { .addr = 0x0242, .bank = 1, .fn = &_gb_unsupported, .name = "gb_unsupported" },
-    { .addr = 0x2949, .bank = 0xffff, .fn = &_vram_write_tile, .name = "vram_write_tile" },
-    { .addr = 0x02e0, .bank = 6, .fn = &_memseq8, .name = "memseq8" },
+    { .addr = 0x2949, .bank = 0xffff, .ret_addr = 0x29a3, .fn = &_vram_write_tile, .name = "vram_write_tile" },
+    { .addr = 0x02e0, .bank = 6, .ret_addr = 0x02e5, .fn = &_memseq8, .name = "memseq8" },
 };
 
 struct GB_hooklist_s HOOKLIST = {

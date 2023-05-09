@@ -12,6 +12,7 @@ typedef unsigned (*GB_hook_fn_t)(GB_gameboy_t *gb);
 struct GB_hook_s {
     uint16_t addr;
     uint16_t bank; /* -1 = any bank*/
+    uint16_t ret_addr;
     char name[HOOK_MAX_NAME_LENGTH + 1];
     GB_hook_fn_t fn;
 };

@@ -44,7 +44,11 @@ unsigned GB_hooks_run(GB_gameboy_t *gb) {
             continue;
         }
         GB_log(gb, "[HOOKS] Applying hook=%s;bank=$%02x;addr=%04x\n", entry->name, gb->mbc_rom_bank, gb->pc);
-        return entry->fn(gb);
+        const unsigned cycles = entry->fn(gb);
+        if (entry->ret_addr != 0) {
+            gb->pc = entry->ret_addr;
+        }
+        return cycles;
     }
     // No hooks ran!
     return 0;
