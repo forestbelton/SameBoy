@@ -1,6 +1,8 @@
 {
   "editor.formatOnSave": false,
   "files.associations": {
-    "gb.h": "c"
+    "gb.h": "c",
+    "windows.h": "c",
+    "magi.h": "c"
   }
 }

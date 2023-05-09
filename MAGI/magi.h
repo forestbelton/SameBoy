@@ -1,5 +1,8 @@
-#ifndef tffl_h
-#define tffl_h
+#ifndef magi_h
+#define magi_h
+
+#include "hw.h"
+#include "ptr.h"
 
 #define GB_INTERNAL
 

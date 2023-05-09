@@ -12,14 +12,20 @@ boolean inited;
 gb_memory_reader_t gb_read8;
 gb_memory_writer_t gb_write8;
 
+// MBC5
+static void setRomBank(GB_gameboy_t *gb, uint8_t bank) {
+    gb_write8(gb, ROM_BANK, bank);
+    gb_write8(gb, 0x2000, bank);
+}
+
 // 16-bit ops are in little-endian
 static uint16_t gb_read16(GB_gameboy_t *gb, uint16_t addr) {
     return (gb_read8(gb, addr + 1) << 8) | gb_read8(gb, addr);
 }
 
 static void gb_write16(GB_gameboy_t *gb, uint16_t addr, uint16_t value) {
-    gb_write8(gb, addr, value >> 8);
-    gb_write8(gb, addr + 1, value & 0xff);
+    gb_write8(gb, addr + 1, value >> 8);
+    gb_write8(gb, addr, value & 0xff);
 }
 
 static bool _init() {
@@ -53,19 +59,6 @@ unsigned _mult8(GB_gameboy_t *gb) {
     return cycles;
 }
 
-/*unsigned _gb_unsupported(GB_gameboy_t *gb) {
-    return 0;
-}*/
-
-#define VBK 0xff4f
-
-#define PENDING_TILE_DATA_PTR 0xc6e7
-#define PENDING_TILE_VRAM_PTR 0xc6e9
-#define PENDING_TILE_VRAM_BANK 0xc6eb
-
-#define UNKNOWN_PTR_C6E4 0xc6e4
-#define UNKNOWN_PTR_C6E5 0xc6e5
-
 unsigned _vram_write_tile(GB_gameboy_t *gb) {
     uint16_t tile_vram_ptr = gb_read16(gb, PENDING_TILE_VRAM_PTR);
     uint16_t tile_data_ptr = gb_read16(gb, PENDING_TILE_DATA_PTR);
@@ -94,7 +87,7 @@ unsigned _vram_write_tile(GB_gameboy_t *gb) {
 
 // Writes an increasing sequence of B numbers at HL starting with the value in A
 unsigned _memseq8(GB_gameboy_t *gb) {
-    const unsigned cycles = (8 + 4 + 8 + 12) * gb->bc - 4;
+    const unsigned cycles = (8 + 4 + 8 + 12) * gb->b - 4;
     do {
         gb_write8(gb, gb->hl++, gb->a++);
         gb->b--;
@@ -103,10 +96,52 @@ unsigned _memseq8(GB_gameboy_t *gb) {
     return cycles;
 }
 
+static char STR_UNSUPPORTED[] =
+    "Magi-Nation is   "
+    "Specially Designed "
+    "for Game Boy Color."
+    "Please use a Game"
+    " Boy Color To Play "
+    " This Game.   ";
+
+unsigned _gb_unsupported(GB_gameboy_t *gb) {
+    uint16_t tile_vram_ptr = 0x8860;
+
+    setRomBank(gb, 6);
+    for (size_t i = 0; i < sizeof STR_UNSUPPORTED; ++i) {
+        const uint16_t tile_data_ptr = 0x10 * STR_UNSUPPORTED[i] + 0x4000;
+        gb_write8(gb, PENDING_TILE_VRAM_BANK, 1);
+        gb_write16(gb, PENDING_TILE_DATA_PTR, tile_data_ptr);
+        gb_write16(gb, PENDING_TILE_VRAM_PTR, tile_vram_ptr);
+        mlogf("_gb_unsupported tile=$%04x vram=$%04x", tile_data_ptr, tile_vram_ptr);
+        _vram_write_tile(gb);
+        tile_vram_ptr += 0x10;
+    }
+
+    // NB: This is their way of writing tilemap data...
+    #define MEMSEQ(av, hlv, bv) do { \
+        gb->a = av; gb->b = bv; gb->hl = hlv; _memseq8(gb); \
+    } while(0)
+    MEMSEQ(0x86, 0x9c22, 0x10);
+    MEMSEQ(0x97, 0x9c81, 0x12);
+    MEMSEQ(0xa9, 0x9ce0, 0x14);
+    MEMSEQ(0xbd, 0x9d44, 0xd);
+    MEMSEQ(0xc9, 0x9da1, 0x13);
+    MEMSEQ(0xdc, 0x9e01, 0x12);
+
+    gb_write8(gb, IF, 0);
+    gb_write8(gb, 0xff98, 0);
+    gb_write8(gb, IE, 3);
+    gb_write8(gb, LCDC, 0xe1);
+    gb_write8(gb, IE, 0);
+
+    return 0;
+}
+
 struct GB_hook_s HOOKS[] = {
     // Utilities
     { .addr = 0x04ca, .bank = 1, .fn = &_mult8, .name = "mult8" },
-    //{ .addr = 0x0242, .bank = 1, .fn = &_gb_unsupported, .name = "gb_unsupported" },
+    { .addr = 0x0242, .bank = 1, .fn = &_gb_unsupported, .name = "gb_unsupported" },
     { .addr = 0x2949, .bank = 0xffff, .fn = &_vram_write_tile, .name = "vram_write_tile" },
     { .addr = 0x02e0, .bank = 6, .fn = &_memseq8, .name = "memseq8" },
 };
