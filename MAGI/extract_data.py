@@ -122,7 +122,7 @@ def extract_rom(rom_data: bytes, spec: DataSpecification) -> ExtractRom:
             rom.used[addr] = field_idx + 1
         rom.fields[field.name] = ExtractField(field.type, value)
         if field.type == ExtractType.TILEDATA:
-            with open(f"{field.name}.tiles.2bpp", "wb") as f:
+            with open(f"data/{field.name}.tiles.2bpp", "wb") as f:
                 f.write(value)
     return rom
 
